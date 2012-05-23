@@ -1,0 +1,117 @@
+# Gitignore for working with CryEngine
+# Notes:
+# Only simpler patterns/globbing work under the Cygwin environment
+# Overrides are at the very end of the file
+
+
+# binaries
+*.exe
+*.o
+*.so
+*.obj
+*.pdb
+*.dll
+
+# VS Build output
+*.obj
+*.tlog
+*.idb
+*.pdb
+*.manifest
+*.ilk
+*.lastbuildstate
+*.unsuccessfulbuild
+
+# VS temporary paths
+# todo: ignore anything with /Debug/ in the path, etc.
+bin/
+obj/
+Bin32/
+Bin64/
+BinTemp/
+
+# VS Detritus
+*.idb
+*.user
+*.suo
+*.opensdf
+*.sdf
+*.ipch
+*.exp
+*.manifest
+*.manifest.res
+*manifest.rc
+*.ncb
+*.aps
+*.skinproj
+
+# VS Per-user settings
+*.user
+
+# Other version control
+.svn
+
+# CryEngine archives
+*.pak
+
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+
+# Images
+*.jpg
+*.png
+*.gif
+*.bmp
+*.ico
+*.tif
+*.dds
+
+# Sound
+*.wav
+*.snd
+
+# Models
+*.max
+*.cgf
+
+
+# CryEngine paths - mostly data
+FreeSDK/Engine/
+FreeSDK/Game/Levels/
+FreeSDK/TestResults/
+FreeSDK/USER/
+FreeSDK/Temp/
+FreeSDK/statoscope/
+FreeSDK/LogBackups/
+FreeSDK/Tools/
+
+
+
+# Logs, text
+*.log
+*.tlog
+*.html
+error.bmp
+error.dmp
+luac.out
+server_profile.txt
+
+
+# Mac detritus
+.DS_Store
+
+# Overrides
+!*.xml
+
+
+
+
