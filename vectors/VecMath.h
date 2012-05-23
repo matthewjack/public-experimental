@@ -30,6 +30,8 @@ struct Vec2f
 
 };
 
+struct Vec3fRecast;
+
 struct Vec3f
 {
 	//POD type, do not add constructor, copy assignment, destructor, virtual functions
@@ -56,8 +58,40 @@ struct Vec3f
 	//mutators
 	Vec3f& Normalize();
 	Vec3f& FastNormalize();
+
+	Vec3fRecast Transfrom() const;
+
 };
 
+struct Vec3fRecast
+{
+	float v[3];
+	Vec3fRecast( const Vec3f& in_ )
+	{
+		v[0] = in_.x;
+		v[1] = in_.z;
+		v[2] = in_.y;
+	}
+	Vec3fRecast& operator=( const Vec3f& rhs_ )
+	{
+
+		v[0] = rhs_.x;
+		v[1] = rhs_.z;
+		v[2] = rhs_.y;
+	}
+
+	//casting
+	operator float*() { return v; };
+	operator const float*() { return v; };
+	
+
+};
+
+Vec3fRecast Vec3f::Transfrom() const
+{
+	Vec3fRecast retval( *this );
+	return retval;
+}
 
 //Fast Inverse Square Root
 float FastInvSqrtf( float in_ )
