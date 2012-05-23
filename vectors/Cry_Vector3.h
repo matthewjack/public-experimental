@@ -17,16 +17,13 @@
 # pragma once
 #endif
 
-#include "Endian.h"
 
-//for PS3, the intrinsics generate larger and slower code unfortunately
-#if (defined(PS3) || defined(XENON)) && defined(XENON_INTRINSICS)
-#define XENON_INTRINSICS_ENABLED
-#undef XENON_INTRINSICS
-#endif
+#define ILINE _inline
 
-
-
+#define IF(a, b) if((a))
+#define WHILE(a, b) while((a))
+#define IF_UNLIKELY(a) if((a))
+#define IF_LIKELY(a) if((a))
 
 
 #ifndef CRY_MATH_ARG_REF
@@ -95,21 +92,7 @@ template <typename F> struct Vec3_tpl
 
 	F x,y,z;
 
-#if defined(_DEBUG) && !defined(__SPU__)
-	ILINE Vec3_tpl() 
-	{
-		if (sizeof(F)==4)
-		{
-			uint32* p=alias_cast<uint32*>(&x);		p[0]=F32NAN;	p[1]=F32NAN; p[2]=F32NAN;
-		}
-		if (sizeof(F)==8)
-		{
-			uint64* p=alias_cast<uint64*>(&x);		p[0]=F64NAN;	p[1]=F64NAN; p[2]=F64NAN;
-		}
-	}
-#else
 	ILINE Vec3_tpl()	{};
-#endif
 
 	/*!
 	* template specailization to initialize a vector 
@@ -119,9 +102,9 @@ template <typename F> struct Vec3_tpl
 	*  Vec3 v1=Vec3(MIN);
 	*  Vec3 v2=Vec3(MAX);
 	*/
-	Vec3_tpl(type_zero) : x(0),y(0),z(0) {}
-	Vec3_tpl(type_min);
-	Vec3_tpl(type_max);
+//	Vec3_tpl(type_zero) : x(0),y(0),z(0) {}
+//	Vec3_tpl(type_min);
+//	Vec3_tpl(type_max);
 
 	/*!
 	* constrctors and bracket-operator to initialize a vector 
@@ -144,8 +127,8 @@ template <typename F> struct Vec3_tpl
 	*  Vec3 v0=v1;
 	*/
 	template <class T> ILINE  Vec3_tpl( const Vec3_tpl<T>& v ) : x((F)v.x), y((F)v.y), z((F)v.z) { assert(this->IsValid()); }
-	explicit ILINE Vec3_tpl(const Ang3_tpl<F>& v) : x((F)v.x), y((F)v.y), z((F)v.z) { assert(this->IsValid()); }
-	ILINE Vec3_tpl(const Vec2_tpl<F>& v) : x((F)v.x), y((F)v.y), z(0) { assert(this->IsValid()); }
+	//explicit ILINE Vec3_tpl(const Ang3_tpl<F>& v) : x((F)v.x), y((F)v.y), z((F)v.z) { assert(this->IsValid()); }
+//	ILINE Vec3_tpl(const Vec2_tpl<F>& v) : x((F)v.x), y((F)v.y), z(0) { assert(this->IsValid()); }
 
 	/*!
 	* overloaded arithmetic operator  
@@ -293,9 +276,11 @@ template <typename F> struct Vec3_tpl
 
 	bool IsValid() const
 	{
+		/*
 		if (!NumberValid(x)) return false;
 		if (!NumberValid(y)) return false;
 		if (!NumberValid(z)) return false;
+		*/
 		return true;
 	}
 
@@ -516,6 +501,7 @@ template <typename F> struct Vec3_tpl
 		return *this * fInvLen;
 	}
 
+	/*
 	//! return a safely normalized vector - returns safe vector (should be normalised) if original is zero length
 	ILINE Vec3_tpl GetNormalizedSafe(const struct Vec3_tpl<F>& safe = Vec3Constants<F>::fVec3_OneX) const 
 	{ 
@@ -546,6 +532,7 @@ template <typename F> struct Vec3_tpl
 		//    }
 		//#endif
 	}
+	*/
 
 	//! return a safely normalized vector - returns safe vector (should be normalised) if original is zero length
 	ILINE Vec3_tpl GetNormalizedSafeFloat(const struct Vec3_tpl<F>& safe = Vec3Constants<F>::fVec3_OneX) const 
@@ -956,7 +943,7 @@ template <typename F> struct Vec3_tpl
 		return Vec3_tpl<F1>(y*v.z-z*v.y, z*v.x-x*v.z, x*v.y-y*v.x); 
 	}
 
-	AUTO_STRUCT_INFO
+	//AUTO_STRUCT_INFO
 };
 
 
@@ -1016,6 +1003,7 @@ ILINE Vec3_tpl<F1> operator + (const Vec3_tpl<F1> CRY_MATH_ARG_REF v0, const Vec
 	//  return res;
 	//#endif
 }
+/*
 //vector addition
 template<class F1,class F2>
 ILINE Vec3_tpl<F1> operator + (const Vec2_tpl<F1> &v0, const Vec3_tpl<F2> &v1) {
@@ -1026,7 +1014,7 @@ template<class F1,class F2>
 ILINE Vec3_tpl<F1> operator + (const Vec3_tpl<F1> &v0, const Vec2_tpl<F2> &v1) {
 	return Vec3_tpl<F1>(v0.x+v1.x, v0.y+v1.y, v0.z);
 }
-
+*/
 //vector subtraction
 template<class F1,class F2>
 ILINE Vec3_tpl<F1> operator - (const Vec3_tpl<F1> & v0, const Vec3_tpl<F2> & r)
@@ -1043,6 +1031,7 @@ ILINE Vec3_tpl<F1> operator - (const Vec3_tpl<F1> & v0, const Vec3_tpl<F2> & r)
 	//  return res;
 	//#endif
 }
+/*
 template<class F1,class F2>
 ILINE Vec3_tpl<F1> operator - (const Vec2_tpl<F1> &v0, const Vec3_tpl<F2> &v1) {
 	return Vec3_tpl<F1>(v0.x-v1.x, v0.y-v1.y, 0.0f-v1.z);
@@ -1051,7 +1040,7 @@ template<class F1,class F2>
 ILINE Vec3_tpl<F1> operator - (const Vec3_tpl<F1> &v0, const Vec2_tpl<F2> &v1) {
 	return Vec3_tpl<F1>(v0.x-v1.x, v0.y-v1.y, v0.z);
 }
-
+*/
 
 //---------------------------------------------------------------------------
 
@@ -1103,15 +1092,16 @@ typedef Vec3_tpl<f32>	Vec3r;		//for systems with float precision higher then 64b
 #endif
 typedef Vec3_tpl<f64>	  Vec3_f64; //for double-precision
 typedef Vec3_tpl<int>	  Vec3i;		//for integers
+/*
 template<> inline Vec3_tpl<f64>::Vec3_tpl(type_min) { x=y=z=-1.7E308; }
 template<> inline Vec3_tpl<f64>::Vec3_tpl(type_max) { x=y=z=1.7E308; }
 template<> inline Vec3_tpl<f32>::Vec3_tpl(type_min) { x=y=z=-3.3E38f; }
 template<> inline Vec3_tpl<f32>::Vec3_tpl(type_max) { x=y=z=3.3E38f; }
-
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // Random vector functions.
-
+/*
 ILINE Vec3 Random(const Vec3& v)
 {
 	return Vec3( Random(v.x), Random(v.y), Random(v.z) );
@@ -1127,7 +1117,7 @@ static inline Vec3 Vec3FlattenXY(const Vec3 & vIn)
 	return Vec3(vIn.x,vIn.y,0.0f).GetNormalizedSafe(Vec3Constants<float>::fVec3_OneY);
 }
 
-
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -1373,7 +1363,7 @@ template <typename F> struct Vec4_tpl
 	ILINE static Vec4_tpl<F> CreateLerp( const Vec4_tpl<F> &p, const Vec4_tpl<F> &q, F t ) {	return p*(1.0f-t) + q*t;}
 
 
-	AUTO_STRUCT_INFO
+	//AUTO_STRUCT_INFO
 } 
 
 
@@ -1457,402 +1447,6 @@ ILINE Vec4_tpl<F1> operator / (const Vec4_tpl<F1> CRY_MATH_ARG_REF v0, const Vec
 	return Vec4_tpl<F1>(v0.x/v1.x, v0.y/v1.y, v0.z/v1.z, v0.w/v1.w);
 
 }
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-// struct Ang3_tpl
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-template <typename F> struct Ang3_tpl
-{
-	F x,y,z;
-
-#if defined(_DEBUG) && !defined(__SPU__)
-	ILINE Ang3_tpl() 
-	{
-		if (sizeof(F)==4)
-		{
-			uint32* p=alias_cast<uint32*>(&x);		p[0]=F32NAN;	p[1]=F32NAN; p[2]=F32NAN;
-		}
-		if (sizeof(F)==8)
-		{
-			uint64* p=alias_cast<uint64*>(&x);		p[0]=F64NAN;	p[1]=F64NAN; p[2]=F64NAN;
-		}
-	}
-#else
-	ILINE Ang3_tpl()	{};
-#endif
-
-
-	Ang3_tpl(type_zero) { x=y=z=0; }
-
-	void operator () ( F vx, F vy,F vz ) { x=vx; y=vy; z=vz; };
-	ILINE Ang3_tpl<F>( F vx, F vy, F vz )	{	x=vx; y=vy; z=vz;	}  
-
-	explicit ILINE Ang3_tpl(const Vec3_tpl<F>& v) : x((F)v.x), y((F)v.y), z((F)v.z) { assert(this->IsValid()); }
-
-	ILINE bool operator==(const Ang3_tpl<F> &vec) { return x == vec.x && y == vec.y && z == vec.z; }
-	ILINE bool operator!=(const Ang3_tpl<F> &vec) { return !(*this == vec); }
-
-	ILINE Ang3_tpl<F> operator * (F k) const { return Ang3_tpl<F>(x*k,y*k,z*k); }
-	ILINE Ang3_tpl<F> operator / (F k) const { k=(F)1.0/k; return Ang3_tpl<F>(x*k,y*k,z*k); }
-
-
-	ILINE Ang3_tpl<F>& operator *= (F k) { x*=k;y*=k;z*=k; return *this; }
-
-	ILINE Ang3_tpl<F> operator - ( void ) const { return Ang3_tpl<F>(-x,-y,-z); }
-
-	ILINE friend bool operator ==(const Ang3_tpl<F> &v0, const Ang3_tpl<F> &v1)	{
-		return ((v0.x==v1.x) && (v0.y==v1.y) && (v0.z==v1.z));
-	}
-	ILINE void Set(F xval,F yval,F zval) { x=xval; y=yval; z=zval; }
-
-	ILINE bool IsEquivalent( const Ang3_tpl<F>& v1, F epsilon=VEC_EPSILON) const {
-		return  ((fabs_tpl(x-v1.x) <= epsilon) &&	(fabs_tpl(y-v1.y) <= epsilon)&&	(fabs_tpl(z-v1.z) <= epsilon));	
-	}
-	ILINE bool IsInRangePI() const {
-		F pi=(F)(gf_PI+0.001); //we need this to fix fp-precision problem 
-		return  (  (x>-pi)&&(x<pi) && (y>-pi)&&(y<pi) && (z>-pi)&&(z<pi) );	
-	}
-	//! normalize angle to -pi and +pi range 
-	void RangePI() {
-		if (x< (F)gf_PI) x+=(F)gf_PI2;
-		if (x> (F)gf_PI) x-=(F)gf_PI2;
-		if (y< (F)gf_PI) y+=(F)gf_PI2;
-		if (y> (F)gf_PI) y-=(F)gf_PI2;
-		if (z< (F)gf_PI) z+=(F)gf_PI2;
-		if (z> (F)gf_PI) z-=(F)gf_PI2;
-	}
-
-
-	//Convert unit quaternion to angle (xyz).
-	template<class F1> explicit Ang3_tpl( const Quat_tpl<F1>& q )
-	{
-		assert(q.IsValid());
-		y = F( asin_tpl(max((F)-1.0,min((F)1.0,-(q.v.x*q.v.z-q.w*q.v.y)*2))) );
-		if (fabs_tpl(fabs_tpl(y)-(F)((F)g_PI*(F)0.5))<(F)0.01)	
-		{
-			x = F(0);
-			z = F(atan2_tpl(-2*(q.v.x*q.v.y-q.w*q.v.z),1-(q.v.x*q.v.x+q.v.z*q.v.z)*2));
-		} 
-		else 
-		{
-			x = F(atan2_tpl((q.v.y*q.v.z+q.w*q.v.x)*2, 1-(q.v.x*q.v.x+q.v.y*q.v.y)*2));
-			z = F(atan2_tpl((q.v.x*q.v.y+q.w*q.v.z)*2, 1-(q.v.z*q.v.z+q.v.y*q.v.y)*2));
-		}
-	}
-
-	//Convert matrix33 to angle (xyz).
-	template<class F1> explicit Ang3_tpl( const Matrix33_tpl<F1>& m )
-	{
-		assert( m.IsOrthonormalRH(0.001f) );
-		y = (F)asin_tpl(max((F)-1.0,min((F)1.0,-m.m20)));
-		if (fabs_tpl(fabs_tpl(y)-(F)((F)g_PI*(F)0.5))<(F)0.01)	
-		{
-			x = F(0);
-			z = F(atan2_tpl(-m.m01,m.m11));
-		} 
-		else 
-		{
-			x = F(atan2_tpl(m.m21, m.m22));
-			z = F(atan2_tpl(m.m10, m.m00));
-		}
-	}
-
-	//Convert matrix34 to angle (xyz).
-	template<class F1, class B> explicit Ang3_tpl( const Matrix34_tpl<F1, B>& m )
-	{
-		assert( m.IsOrthonormalRH(0.001f) );
-		y = F( asin_tpl(max((F)-1.0,min((F)1.0,-m.m20))) );
-		if (fabs_tpl(fabs_tpl(y)-(F)((F)g_PI*(F)0.5))<(F)0.01)	
-		{
-			x = F(0);
-			z = F(atan2_tpl(-m.m01,m.m11));
-		} 
-		else 
-		{
-			x = F(atan2_tpl(m.m21, m.m22));
-			z = F(atan2_tpl(m.m10, m.m00));
-		}
-	}
-
-	//Convert matrix34 to angle (xyz).
-	template<class F1, class B> explicit Ang3_tpl( const Matrix44_tpl<F1, B>& m )
-	{
-		assert( Matrix33(m).IsOrthonormalRH(0.001f) );
-		y = F( asin_tpl(max((F)-1.0,min((F)1.0,-m.m20))) );
-		if (fabs_tpl(fabs_tpl(y)-(F)((F)g_PI*(F)0.5))<(F)0.01)	
-		{
-			x = F(0);
-			z = F(atan2_tpl(-m.m01,m.m11));
-		} 
-		else 
-		{
-			x = F(atan2_tpl(m.m21, m.m22));
-			z = F(atan2_tpl(m.m10, m.m00));
-		}
-	}
-
-	template<typename F1>	static ILINE F CreateRadZ( const Vec2_tpl<F1>& v0, const Vec2_tpl<F1>& v1 )
-	{
-		F cz	= v0.x*v1.y-v0.y*v1.x; 
-		F c		=	v0.x*v1.x+v0.y*v1.y;
-		return F( atan2_tpl(cz,c) );
-	}
-
-	template<typename F1>	static ILINE F CreateRadZ( const Vec3_tpl<F1>& v0, const Vec3_tpl<F1>& v1 )
-	{
-		F cz	= v0.x*v1.y-v0.y*v1.x; 
-		F c		=	v0.x*v1.x+v0.y*v1.y;
-		return F( atan2_tpl(cz,c) );
-	}
-
-	template<typename F1>	ILINE static Ang3_tpl<F> GetAnglesXYZ( const Quat_tpl<F1>& q ) {	return Ang3_tpl<F>(q); }
-	template<typename F1>	ILINE void SetAnglesXYZ( const Quat_tpl<F1>& q )	{	*this=Ang3_tpl<F>(q);	}
-
-	template<typename F1>	ILINE static Ang3_tpl<F> GetAnglesXYZ( const Matrix33_tpl<F1>& m ) {	return Ang3_tpl<F>(m); }
-	template<typename F1>	ILINE void SetAnglesXYZ( const Matrix33_tpl<F1>& m )	{	*this=Ang3_tpl<F>(m);	}
-
-	template<typename F1, class B>	ILINE static Ang3_tpl<F> GetAnglesXYZ( const Matrix34_tpl<F1, B>& m ) {	return Ang3_tpl<F>(m); }
-	template<typename F1, class B>	ILINE void SetAnglesXYZ( const Matrix34_tpl<F1, B>& m )	{	*this=Ang3_tpl<F>(m);	}
-
-	//---------------------------------------------------------------
-	ILINE F &operator [] (int index)		  { assert(index>=0 && index<=2); return ((F*)this)[index]; }
-	ILINE F operator [] (int index) const { assert(index>=0 && index<=2); return ((F*)this)[index]; }
-
-
-	bool IsValid() const
-	{
-		if (!NumberValid(x)) return false;
-		if (!NumberValid(y)) return false;
-		if (!NumberValid(z)) return false;
-		return true;
-	}
-
-	AUTO_STRUCT_INFO
-};
-
-typedef Ang3_tpl<f32>		Ang3;
-typedef Ang3_tpl<real>	Ang3r;
-typedef Ang3_tpl<f64>		Ang3_f64;
-
-//---------------------------------------
-
-//vector addition
-template<class F1,class F2>
-ILINE Ang3_tpl<F1> operator + (const Ang3_tpl<F1> &v0, const Ang3_tpl<F2> &v1) {
-	return Ang3_tpl<F1>(v0.x+v1.x, v0.y+v1.y, v0.z+v1.z);
-}
-//vector subtraction
-template<class F1,class F2>
-ILINE Ang3_tpl<F1> operator - (const Ang3_tpl<F1> &v0, const Ang3_tpl<F2> &v1) {
-	return Ang3_tpl<F1>(v0.x-v1.x, v0.y-v1.y, v0.z-v1.z);
-}
-
-//---------------------------------------
-
-//vector self-addition
-template<class F1,class F2>
-ILINE Ang3_tpl<F1>& operator += (Ang3_tpl<F1> &v0, const Ang3_tpl<F2> &v1) {
-	v0.x+=v1.x; v0.y+=v1.y; v0.z+=v1.z; return v0;
-}
-//vector self-subtraction
-template<class F1,class F2>
-ILINE Ang3_tpl<F1>& operator -= (Ang3_tpl<F1> &v0, const Ang3_tpl<F2> &v1) {
-	v0.x-=v1.x; v0.y-=v1.y; v0.z-=v1.z; return v0;
-}
-
-
-//! normalize the val to 0-360 range 
-/*
-ILINE f32 Snap_s360( f32 val ) {
-if( val < 0.0f )
-val =f32( 360.0f + cry_fmod(val,360.0f));
-else
-if(val >= 360.0f)
-val =f32(cry_fmod(val,360.0f));
-return val;
-}
-
-//! normalize the val to -180, 180 range 
-ILINE f32 Snap_s180( f32 val ) {
-if( val > -180.0f && val < 180.0f)
-return val;
-val = Snap_s360( val );
-if( val>180.0f )
-return -(360.0f - val);
-return val;
-}*/
-
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-// struct CAngleAxis
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-template <typename F> struct AngleAxis_tpl {
-
-	//! storage for the Angle&Axis coordinates.
-	F angle; Vec3_tpl<F> axis;
-
-	// default quaternion constructor
-	AngleAxis_tpl( void ) { };
-	AngleAxis_tpl( F a, F ax, F ay, F az ) {  angle=a; axis.x=ax; axis.y=ay; axis.z=az; }
-	AngleAxis_tpl( F a, Vec3_tpl<F> &n ) { angle=a; axis=n; }
-	void operator () ( F a, const Vec3_tpl<F> &n ) {  angle=a; axis=n; }
-	AngleAxis_tpl( const AngleAxis_tpl<F>& aa ); //CAngleAxis aa=angleaxis
-	const Vec3_tpl<F> operator * ( const Vec3_tpl<F>& v ) const;
-
-	AngleAxis_tpl( const Quat_tpl<F>& q)
-	{
-		angle = acos_tpl(q.w)*2;
-		axis	= q.v;
-		axis.Normalize();
-		F s = sin_tpl(angle * (F)0.5);
-		if (s == 0)
-		{
-			angle = 0;
-			axis.x = 0;
-			axis.y = 0;
-			axis.z = 1;
-		}
-	}
-
-};
-
-typedef AngleAxis_tpl<f32> AngleAxis;
-typedef AngleAxis_tpl<f64> AngleAxis_f64;
-
-template<typename F> 
-ILINE const Vec3_tpl<F> AngleAxis_tpl<F>::operator * ( const Vec3_tpl<F> &v ) const {
-	Vec3_tpl<F> origin 	= axis*(axis|v);
-	return 	origin +  (v-origin)*cos_tpl(angle)  +  (axis % v)*sin_tpl(angle);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////
-template<typename F> struct Plane_tpl
-{
-
-	//plane-equation: n.x*x + n.y*y + n.z*z + d > 0 is in front of the plane 
-	Vec3_tpl<F>	n;	//!< normal
-	F	d;						//!< distance
-
-	//----------------------------------------------------------------	 
-
-#if defined(_DEBUG) && !defined(__SPU__)
-	ILINE Plane_tpl() 
-	{
-		if (sizeof(F)==4)
-		{
-			uint32* p=alias_cast<uint32*>(&n.x);		p[0]=F32NAN;	p[1]=F32NAN; p[2]=F32NAN; p[3]=F32NAN;
-		}
-		if (sizeof(F)==8)
-		{
-			uint64* p=alias_cast<uint64*>(&n.x);		p[0]=F64NAN;	p[1]=F64NAN; p[2]=F64NAN; p[3]=F64NAN;
-		}
-	}
-#else
-	ILINE Plane_tpl()	{};
-#endif
-
-
-	ILINE Plane_tpl( const Plane_tpl<F> &p ) {	n=p.n; d=p.d; }
-	ILINE Plane_tpl( const Vec3_tpl<F> &normal, const F &distance ) {  n=normal; d=distance; }
-
-	//! set normal and dist for this plane and  then calculate plane type
-	ILINE void Set(const Vec3_tpl<F> &vNormal,const F fDist)	{	
-		n = vNormal; 
-		d = fDist;
-	}
-
-	ILINE void SetPlane( const Vec3_tpl<F> &normal, const Vec3_tpl<F> &point ) { 
-		n=normal; 
-		d=-(point | normal); 
-	}
-	ILINE static Plane_tpl<F> CreatePlane(  const Vec3_tpl<F> &normal, const Vec3_tpl<F> &point ) {  
-		return Plane_tpl<F>( normal,-(point|normal)  );
-	}
-
-	ILINE Plane_tpl<F> operator - ( void ) const { return Plane_tpl<F>(-n,-d); }
-
-	/*!
-	* Constructs the plane by tree given Vec3s (=triangle) with a right-hand (anti-clockwise) winding
-	*
-	* Example 1:
-	*  Vec3 v0(1,2,3),v1(4,5,6),v2(6,5,6);
-	*  Plane_tpl<F>  plane;
-	*  plane.SetPlane(v0,v1,v2);
-	*
-	* Example 2:
-	*  Vec3 v0(1,2,3),v1(4,5,6),v2(6,5,6);
-	*  Plane_tpl<F>  plane=Plane_tpl<F>::CreatePlane(v0,v1,v2);
-	*/
-	ILINE void SetPlane( const Vec3_tpl<F> &v0, const Vec3_tpl<F> &v1, const Vec3_tpl<F> &v2 ) {  
-		n = ((v1-v0)%(v2-v0)).GetNormalized();	//vector cross-product
-		d	=	-(n | v0);				//calculate d-value
-	}
-	ILINE static Plane_tpl<F> CreatePlane( const Vec3_tpl<F> &v0, const Vec3_tpl<F> &v1, const Vec3_tpl<F> &v2 ) {  
-		Plane_tpl<F> p;	p.SetPlane(v0,v1,v2);	return p;
-	}
-
-	/*!
-	* Computes signed distance from point to plane.
-	* This is the standart plane-equation: d=Ax*By*Cz+D.
-	* The normal-vector is assumed to be normalized.
-	* 
-	* Example:
-	*  Vec3 v(1,2,3);
-	*  Plane_tpl<F>  plane=CalculatePlane(v0,v1,v2);
-	*  f32 distance = plane|v;
-	*/
-	ILINE F operator | ( const Vec3_tpl<F> &point ) const { return (n | point) + d; }
-	ILINE F	DistFromPlane(const Vec3_tpl<F> &vPoint) const	{	return (n*vPoint+d); }
-
-	ILINE Plane_tpl<F> operator - ( const Plane_tpl<F> &p) const { return Plane_tpl<F>( n-p.n, d-p.d); }
-	ILINE Plane_tpl<F> operator + ( const Plane_tpl<F> &p) const { return Plane_tpl<F>(n+p.n,d+p.d); }
-	ILINE void operator -= (const Plane_tpl<F> &p) { d-=p.d; n-=p.n; }
-	ILINE Plane_tpl<F> operator * ( F s ) const {	return Plane_tpl<F>(n*s,d*s);	}
-	ILINE Plane_tpl<F> operator / ( F s ) const {	return Plane_tpl<F>(n/s,d/s); }
-
-	//! check for equality between two planes
-	friend	bool operator ==(const Plane_tpl<F> &p1, const Plane_tpl<F> &p2) {
-		if (fabsf(p1.n.x-p2.n.x)>0.0001f) return (false);
-		if (fabsf(p1.n.y-p2.n.y)>0.0001f) return (false);
-		if (fabsf(p1.n.z-p2.n.z)>0.0001f) return (false);
-		if (fabsf(p1.d-p2.d)<0.01f) return(true);
-		return (false);
-	}
-
-	Vec3_tpl<F> MirrorVector(const Vec3_tpl<F>& i)   {	return n*(2* (n|i))-i;	}
-	Vec3_tpl<F> MirrorPosition(const Vec3_tpl<F>& i) {  return i - n*(2* ((n|i)+d)); }
-
-	AUTO_STRUCT_INFO
-};
-
-typedef Plane_tpl<f32>	Plane;
-typedef Plane_tpl<real>	Planer;
-typedef Plane_tpl<f64>	Plane_f64;
 
 //-----------------------------------------------------------------
 // define the constants
